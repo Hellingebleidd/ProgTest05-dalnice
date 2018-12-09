@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 const int NESPRAVNY_VSTUP = -1;
 
@@ -36,7 +37,7 @@ int main() {
     tmpOddelovac = getchar();
     if (tmp <= 0 && tmpOddelovac == EOF)
         return 0;
-    if (tmp != 1 || (koniec != EOF && koniec != '\n' && koniec != ' ')) {
+    if (tmp != 2 || (tmpOddelovac != EOF && tmpOddelovac != '\n' && tmpOddelovac != ' ')) {
         printf("Nespravny vstup.\n");
         return NESPRAVNY_VSTUP;
     }
@@ -45,6 +46,8 @@ int main() {
         printf("Nespravny vstup.\n");
         return NESPRAVNY_VSTUP;
     }
+
+    urciMyto(zaciatok,koniec);
 }
 
 int nacitajVstupy() {
@@ -118,20 +121,32 @@ int nacitajVstupy() {
 
 
 int urciMyto(long zaciatok, long koniec) {
-    long i;
-    int cena;
+    long i, j;
+    float zaplat[26]; //asi??
+
     if (zaciatok == koniec || zaciatok < 0 || koniec < 0)
         return NESPRAVNY_VSTUP;
+
 
     //mam { [ 50: A=10.5, E=80 ], [ 30: Z=20, A=7.5, X=130 ], [ 200: A=0, E=300 ] }
     for (i = 0; i < pocet; ++i) {
         //najdi zaciatok
-        useky[0].zaciatok=zaciatok;
+        if (useky[0].zaciatok < zaciatok)
+            useky[0].zaciatok = zaciatok;
+
+
 
 
         // spocitaj cisla
+        for (j = 0; j <= 26; ++j) {
+            zaplat[j] = (useky[i].koniec - useky[i].zaciatok) * useky[i].myto[j];
 
-        //najdi koniec
+            if ((zaplat[j]) > 0)
+                printf("myto[%d]= %f\n", j, zaplat[j]);
 
+            //najdi koniec
+
+        }
     }
+    return 0;
 }
