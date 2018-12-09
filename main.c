@@ -119,12 +119,15 @@ int nacitajVstupy() {
 
 int urciMyto(long zaciatok, long koniec) {
     long i;
+    int cena;
     if (zaciatok == koniec || zaciatok < 0 || koniec < 0)
         return NESPRAVNY_VSTUP;
 
     //mam { [ 50: A=10.5, E=80 ], [ 30: Z=20, A=7.5, X=130 ], [ 200: A=0, E=300 ] }
     for (i = 0; i < pocet; ++i) {
         //najdi zaciatok
+        useky[0].zaciatok=zaciatok;
+
 
         // spocitaj cisla
 
