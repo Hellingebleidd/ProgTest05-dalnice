@@ -5,26 +5,28 @@
 const long int NESPRAVNY_VSTUP = -1;
 
 struct usek {
-    long long int zaciatok;  //zaciatok useku
-    long long int koniec;
-    double myto[26]; //pole pre myto A..Z
+    long int zaciatok;  /*zaciatok useku*/
+    long int koniec;
+    double myto[26];    /*pole pre myto A..Z*/
 };
 struct usek *useky;
-long long int maxPocet = 100, pocetKrok = 100;    //maxPocet alokovanych usekov, a kolko bude realloc
-long long int pocet;     //skutocny pocet usekov
 
-long long int nacitajVstupy() {                 //nacita hodnoty zo stdin. Ak je chyba -> NESPRAVNY_VSTUP
+long int maxPocet = 100, pocetKrok = 100;   /*maxPocet alokovanych usekov, a kolko bude realloc*/
+long int pocet;     /*skutocny pocet usekov*/
+
+long int nacitajVstupy() {
+    /*nacita hodnoty zo stdin. Ak je chyba -> NESPRAVNY_VSTUP*/
     char myto, tmpOddelovac;
     int tmp, j;
-    long long int i = 0, km;
+    long int i = 0, km;
     double cena;
     printf("Myto:\n");
 
-    do { tmp = getchar(); } while (tmp == ' ');  //preskocim vsetky medzery
+    do { tmp = getchar(); } while (tmp == ' '); /*preskocim vsetky medzery*/
     if (tmp != '{')
         return NESPRAVNY_VSTUP;
     do {
-        tmp = scanf(" [ %lli : ", &km);
+        tmp = scanf(" [ %li : ", &km);
         if (tmp != 1 || km <= 0)
             return NESPRAVNY_VSTUP;
         useky[i].koniec = useky[i].zaciatok + km;
@@ -36,31 +38,32 @@ long long int nacitajVstupy() {                 //nacita hodnoty zo stdin. Ak je
             useky[i].myto[myto - 'A'] = cena;
 
         } while (tmpOddelovac != ']');
-        do { tmp = getchar(); } while (tmp == ' ');  //preskocim vsetky medzery
+        do { tmp = getchar(); } while (tmp == ' ');
         if (tmp == '}')
-            return i + 1;   //koniec vypoctu
+            return i + 1;
 
         if (tmp != ',')
             return NESPRAVNY_VSTUP;
 
-        //novy usek
-        if (++i >= maxPocet) {   //treba alokovat dalsi usek
+        if (++i >= maxPocet) { /*treba alokovat dalsi usek*/
             maxPocet = maxPocet + pocetKrok;
             useky = (struct usek *) realloc(useky, maxPocet * (sizeof(struct usek)));
         }
-        useky[i].zaciatok = useky[i - 1].koniec;    //stary koniec => novy zaciatok
-        for (j = 0; j < 26; ++j)                    //prekopirujem stare poplatky
+
+        useky[i].zaciatok = useky[i - 1].koniec;    /*stary koniec => novy zaciatok, prekopirujem stare poplatky*/
+        for (j = 0; j < 26; ++j)
             useky[i].myto[j] = useky[i - 1].myto[j];
 
-    } while (1);    //rob furt
+    } while (1);    /*rob furt*/
 }
 
-int urciMyto(long long int zaciatok, long long int koniec) {        //nacita hodnoty zo stdin a urci myto. Ak je chyba -> NESPRAVNY_VSTUP
-    long long int i = 0, j, vzdialenost = 0, zx, kx;
-    double zaplat[26] = {0}; //asi??
+int urciMyto(long int zaciatok, long int koniec) {
+    /*nacita hodnoty zo stdin a urci myto. Ak je chyba -> NESPRAVNY_VSTUP*/
+    long int i = 0, j, vzdialenost = 0, zx, kx;
+    double zaplat[26];
     int somNaKonci, uzJeDacoVypisane;
 
-    //init
+    /*init*/
     for (j = 0; j < 26; ++j) zaplat[j] = 0;
     somNaKonci = false;
     uzJeDacoVypisane = false;
@@ -100,7 +103,7 @@ int urciMyto(long long int zaciatok, long long int koniec) {        //nacita hod
 
     } while (++i < pocet && !somNaKonci);
 
-    printf("%lli - %lli: ", zaciatok, koniec);
+    printf("%li - %li: ", zaciatok, koniec);
     for (j = 0; j < 26; ++j)
         if ((zaplat[j]) != 0) {
             if (uzJeDacoVypisane)
@@ -116,9 +119,7 @@ int urciMyto(long long int zaciatok, long long int koniec) {        //nacita hod
 
 
 int main() {
-
-//struct usek *useky;
-    long long int i, zaciatok, koniec;
+    long int i, zaciatok, koniec;
     int tmp, tmpOddelovac;
     useky = (struct usek *) calloc((size_t) maxPocet, sizeof(struct usek));
 
@@ -128,10 +129,9 @@ int main() {
         return NESPRAVNY_VSTUP;
     }
 
-    //skusim precitat zaciatok a koniec
     printf("Hledani:\n");
     do {
-        tmp = scanf("%lli %lli", &zaciatok, &koniec);
+        tmp = scanf("%li %li", &zaciatok, &koniec);
         tmpOddelovac = getchar();
         if (tmp <= 0 && tmpOddelovac == EOF)
             return 0;
@@ -139,7 +139,7 @@ int main() {
             printf("Nespravny vstup.\n");
             return NESPRAVNY_VSTUP;
         }
-        //vstupy su zrejme v poriadku, skusim vypocitat myto
+        /*vstupy su zrejme v poriadku, skusim vypocitat myto*/
         if (urciMyto(zaciatok, koniec) == NESPRAVNY_VSTUP) {
             printf("Nespravny vstup.\n");
             return NESPRAVNY_VSTUP;
