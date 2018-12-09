@@ -7,4 +7,5 @@
 @ %testPrg% < 0003_in.txt
 @ %testPrg% < 0004_in.txt
 @ %testPrg% < 0005_in.txt
+@ %testPrg% < 0006_in.txt
 

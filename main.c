@@ -14,6 +14,13 @@ struct usek *useky;
 long int maxPocet = 100, pocetKrok = 100;   /*maxPocet alokovanych usekov, a kolko bude realloc*/
 long int pocet;     /*skutocny pocet usekov*/
 
+char preskocMedzery(){
+    char tmp;
+    do {
+        tmp = getchar();
+    }while (tmp == ' ' || tmp== '\n' || tmp== '\t' || tmp== '\r'); /*preskocim vsetky medzery*/
+    return tmp;
+}
 long int nacitajVstupy() {
     /*nacita hodnoty zo stdin. Ak je chyba -> NESPRAVNY_VSTUP*/
     char myto, tmpOddelovac;
@@ -22,14 +29,18 @@ long int nacitajVstupy() {
     double cena;
     printf("Myto:\n");
 
-    do { tmp = getchar(); } while (tmp == ' '); /*preskocim vsetky medzery*/
+    tmp=preskocMedzery();
     if (tmp != '{')
         return NESPRAVNY_VSTUP;
     do {
-        tmp = scanf(" [ %li : ", &km);
+        tmp = scanf(" [ %li ", &km);
         if (tmp != 1 || km <= 0)
             return NESPRAVNY_VSTUP;
         useky[i].koniec = useky[i].zaciatok + km;
+
+        tmp=preskocMedzery();
+        if (tmp != ':')
+            return NESPRAVNY_VSTUP;
 
         do {
             tmp = scanf(" %c = %lf %c", &myto, &cena, &tmpOddelovac);
@@ -38,7 +49,7 @@ long int nacitajVstupy() {
             useky[i].myto[myto - 'A'] = cena;
 
         } while (tmpOddelovac != ']');
-        do { tmp = getchar(); } while (tmp == ' ');
+        tmp=preskocMedzery();
         if (tmp == '}')
             return i + 1;
 
@@ -117,9 +128,8 @@ int urciMyto(long int zaciatok, long int koniec) {
     return 1;
 }
 
-
 int main() {
-    long int i, zaciatok, koniec;
+    long int zaciatok, koniec;
     int tmp, tmpOddelovac;
     useky = (struct usek *) calloc((size_t) maxPocet, sizeof(struct usek));
 
