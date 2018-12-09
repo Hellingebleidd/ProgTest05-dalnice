@@ -1,64 +1,67 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <stdbool.h>
 
-const int NESPRAVNY_VSTUP = -1;
+const long int NESPRAVNY_VSTUP = -1;
 
 struct usek {
-    long zaciatok;  //zaciatok useku
-    long koniec;
-    float myto[26]; //pole pre myto A..Z
+    long long int zaciatok;  //zaciatok useku
+    long long int koniec;
+    double myto[26]; //pole pre myto A..Z
 };
 struct usek *useky;
-long maxPocet = 100, pocetKrok = 100;    //maxPocet alokovanych usekov, a kolko bude realloc
-long pocet;     //skutocny pocet usekov
+long long int maxPocet = 100, pocetKrok = 100;    //maxPocet alokovanych usekov, a kolko bude realloc
+long long int pocet;     //skutocny pocet usekov
 
 
-int nacitajVstupy();    //nacita hodnoty zo stdin. Ak je chyba -> NESPRAVNY_VSTUP
+long int nacitajVstupy();    //nacita hodnoty zo stdin. Ak je chyba -> NESPRAVNY_VSTUP
 
-int urciMyto(long zaciatok, long koniec); //nacita hodnoty zo stdin a urci myto. Ak je chyba -> NESPRAVNY_VSTUP
+int urciMyto(long long int zaciatok,
+             long long int koniec); //nacita hodnoty zo stdin a urci myto. Ak je chyba -> NESPRAVNY_VSTUP
 
 int main() {
 
 //struct usek *useky;
-    long i, zaciatok, koniec;
+    long long int i, zaciatok, koniec;
     int tmp, tmpOddelovac;
     useky = (struct usek *) calloc(maxPocet, sizeof(struct usek));
 
     pocet = nacitajVstupy();
-    if (pocet == NESPRAVNY_VSTUP) {
+    if (pocet == NESPRAVNY_VSTUP || pocet<1) {
         printf("Nespravny vstup.\n");
         return NESPRAVNY_VSTUP;
     }
 
     //skusim precitat zaciatok a koniec
     printf("Hledani:\n");
-    tmp = scanf("%ld %ld", &zaciatok, &koniec);
-    tmpOddelovac = getchar();
-    if (tmp <= 0 && tmpOddelovac == EOF)
-        return 0;
-    if (tmp != 2 || (tmpOddelovac != EOF && tmpOddelovac != '\n' && tmpOddelovac != ' ')) {
-        printf("Nespravny vstup.\n");
-        return NESPRAVNY_VSTUP;
-    }
-    //vstupy su zrejme v poriadku, skusim vypocitat myto
-    if (urciMyto(zaciatok, koniec) == NESPRAVNY_VSTUP) {
-        printf("Nespravny vstup.\n");
-        return NESPRAVNY_VSTUP;
-    }
+    do {
+        tmp = scanf("%lli %lli", &zaciatok, &koniec);
+        tmpOddelovac = getchar();
+        if (tmp <= 0 && tmpOddelovac == EOF)
+            return 0;
+        if (tmp != 2 || (tmpOddelovac != EOF && tmpOddelovac != '\n' && tmpOddelovac != ' ')) {
+            printf("Nespravny vstup.\n");
+            return NESPRAVNY_VSTUP;
+        }
+        //vstupy su zrejme v poriadku, skusim vypocitat myto
+        if (urciMyto(zaciatok, koniec) == NESPRAVNY_VSTUP) {
+            printf("Nespravny vstup.\n");
+            return NESPRAVNY_VSTUP;
+        }
+    } while (tmpOddelovac != EOF);
 
-    urciMyto(zaciatok,koniec);
+
 }
 
-int nacitajVstupy() {
+long int nacitajVstupy() {
     char myto, tmpOddelovac;
     int tmp, j;
-    long i = 0, km;
-    float cena;
+    long long int i = 0, km;
+    double cena;
     printf("Myto:\n");
-    //ocakavam { [ 50: A=10.5, E=80 ], [ 30: Z=20, A=7.5, X=130 ], [ 200: A=0, E=300 ] }
 
-    //debug nastavenie hodnot
+/*    //debug nastavenie hodnot
+    //ocakavam { [ 50: A=10.5, E=80 ], [ 30: Z=20, A=7.5, X=130 ], [ 200: A=0, E=300 ] }
     useky[0].zaciatok = 0;
     useky[0].koniec = 50;
     useky[0].myto[0] = 10.5;
@@ -77,76 +80,98 @@ int nacitajVstupy() {
     useky[2].myto[23] = 130;
 //koniec debugu
     //return NESPRAVNY_VSTUP;
-    return 3;
+    return 3;*/
 
-
-
-    do{tmp = getchar();} while( tmp==' ');  //preskocim vsetky medzery
+    do { tmp = getchar(); } while (tmp == ' ');  //preskocim vsetky medzery
     if (tmp != '{')
         return NESPRAVNY_VSTUP;
     do {
-        tmp = scanf(" [ %ld : ", &km);
+        tmp = scanf(" [ %lli : ", &km);
         if (tmp != 1 || km < 0)
             return NESPRAVNY_VSTUP;
         useky[i].koniec = useky[i].zaciatok + km;
 
         do {
-            tmp = scanf(" %c = %f %c", &myto, &cena, &tmpOddelovac);
+            tmp = scanf(" %c = %lf %c", &myto, &cena, &tmpOddelovac);
             if (tmp != 3 || myto < 'A' || myto > 'Z' || cena < 0 || (tmpOddelovac != ',' && tmpOddelovac != ']'))
                 return NESPRAVNY_VSTUP;
             useky[i].myto[myto - 'A'] = cena;
 
         } while (tmpOddelovac != ']');
-        do{tmp = getchar();} while( tmp==' ');  //preskocim vsetky medzery
-        if (tmp == '}' )
-            return i+1;   //koniec vypoctu
+        do { tmp = getchar(); } while (tmp == ' ');  //preskocim vsetky medzery
+        if (tmp == '}')
+            return i + 1;   //koniec vypoctu
 
-        if (tmp != ',' )
+        if (tmp != ',')
             return NESPRAVNY_VSTUP;
 
         //novy usek
         if (++i >= maxPocet) {   //treba alokovat dalsi usek
             maxPocet = maxPocet + pocetKrok;
-            useky = (struct usek *) realloc(useky, maxPocet*(sizeof(struct usek)));
+            useky = (struct usek *) realloc(useky, maxPocet * (sizeof(struct usek)));
         }
         useky[i].zaciatok = useky[i - 1].koniec;    //stary koniec => novy zaciatok
         for (j = 0; j < 26; ++j)                    //prekopirujem stare poplatky
             useky[i].myto[j] = useky[i - 1].myto[j];
 
-
     } while (1);    //rob furt
-
-
 }
 
+int urciMyto(long long int zaciatok, long long int koniec) {
+    long long int i = 0, j, vzdialenost = 0, zx, kx;
+    double zaplat[26] = {0}; //asi??
+    int somNaKonci, uzJeDacoVypisane;
 
-int urciMyto(long zaciatok, long koniec) {
-    long i, j;
-    float zaplat[26]; //asi??
+    //init
+    for (j = 0; j < 26; ++j) zaplat[j] = 0;
+    somNaKonci = false;
+    uzJeDacoVypisane = false;
 
-    if (zaciatok == koniec || zaciatok < 0 || koniec < 0)
+    if (zaciatok > koniec) {
+        kx = zaciatok;
+        zx = koniec;
+    } else {
+        kx = koniec;
+        zx = zaciatok;
+    }
+    if (zaciatok == koniec || zx < 0 || kx < 0 || zx> useky[pocet-1].koniec || kx> useky[pocet-1].koniec)
         return NESPRAVNY_VSTUP;
 
-
-    //mam { [ 50: A=10.5, E=80 ], [ 30: Z=20, A=7.5, X=130 ], [ 200: A=0, E=300 ] }
-    for (i = 0; i < pocet; ++i) {
-        //najdi zaciatok
-        if (useky[0].zaciatok < zaciatok)
-            useky[0].zaciatok = zaciatok;
-
-
-
-
-        // spocitaj cisla
-        for (j = 0; j <= 26; ++j) {
-            zaplat[j] = (useky[i].koniec - useky[i].zaciatok) * useky[i].myto[j];
-
-            if ((zaplat[j]) > 0)
-                printf("myto[%d]= %f\n", j, zaplat[j]);
-
-            //najdi koniec
-
+    do {
+        if (vzdialenost == 0) {
+            if (zx < useky[i].koniec) {
+                if (kx < useky[i].koniec) {
+                    vzdialenost = kx - zx;
+                    somNaKonci = true;
+                } else {
+                    vzdialenost = useky[i].koniec - zx;
+                }
+            }
+        } else {
+            if (kx < useky[i].koniec) {
+                vzdialenost = kx - useky[i].zaciatok;
+                somNaKonci = true;
+            } else {
+                vzdialenost = useky[i].koniec - useky[i].zaciatok;
+            }
         }
-    }
-    return 0;
+        if (vzdialenost != 0)
+            for (j = 0; j < 26; ++j)
+                if (useky[i].myto[j] > 0)
+                    zaplat[j] = zaplat[j] + vzdialenost * useky[i].myto[j];
+
+    } while (++i < pocet && !somNaKonci);
+
+        printf("%lli - %lli: ", zaciatok, koniec);
+        for (j = 0; j < 26; ++j)
+            if ((zaplat[j]) != 0) {
+                if (uzJeDacoVypisane)
+                    printf(", ");
+                else
+                    uzJeDacoVypisane = true;
+                printf("%c=%lf", (char) ('A' + j), zaplat[j]);
+            }
+        printf("\n");
+
+    return 1;
 }
